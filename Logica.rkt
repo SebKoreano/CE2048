@@ -35,20 +35,6 @@
     (cons (CrearFila columnas)
           (CrearTableroAux (- filas 1) columnas)))))
 
-; Crea un tablero vacio si las dimensiones son validas.
-; Entrada: la cantidad de filas y la cantidad de columnas.
-; Salida: el tablero vacio o null si las dimensiones no son validas.
-(define (CrearTablero filas columnas)
-  (cond
-    ((DimensionValida? filas)
-     (cond
-       ((DimensionValida? columnas)
-        (CrearTableroAux filas columnas))
-     (else
-       null)))
-  (else
-    null)))
-
 ; Crea una posicion con fila y columna.
 ; Entrada: el numero de fila y el numero de columna.
 ; Salida: una lista con la fila y la columna.
@@ -188,16 +174,6 @@
 ; Salida: un nuevo tablero con una ficha 2 o 4 en una posicion vacia.
 (define (InsertarFichaNueva tablero)
   (InsertarFichaAleatoria tablero (GenerarValorFicha)))
-
-; Crea el tablero inicial del juego con dos fichas de valor 2.
-; Entrada: la cantidad de filas y la cantidad de columnas.
-; Salida: un tablero inicial listo para probar.
-(define (CrearTableroInicial filas columnas)
-  (InsertarFichaAleatoria
-   (InsertarFichaAleatoria
-    (CrearTablero filas columnas)
-    2)
-   2))
 
 ; =========================
 ; Logica de movimientos
@@ -375,15 +351,6 @@
   (else
     #f)))
 
-; Determina si un movimiento realmente cambia el tablero.
-; Entrada: un tablero y una direccion.
-; Salida: #t si el tablero cambia y #f si queda igual.
-(define (MovimientoValido? tablero direccion)
-  (cond
-    ((TableroIgual? tablero (MoverTablero tablero direccion)) #f)
-  (else
-    #t)))
-
 ; Revisa si una fila contiene un valor dado.
 ; Entrada: una fila y un valor.
 ; Salida: #t si el valor aparece en la fila y #f si no aparece.
@@ -472,24 +439,6 @@
         (cons gano
               (cons perdio null))))
 
-; Obtiene el tablero del resultado de una simulacion.
-; Entrada: un resultado de movimiento.
-; Salida: el tablero resultante.
-(define (ObtenerTableroResultado resultado)
-  (car resultado))
-
-; Obtiene si ya gano del resultado de una simulacion.
-; Entrada: un resultado de movimiento.
-; Salida: #t si ya llego a 2048 y #f si no.
-(define (ObtenerGanoResultado resultado)
-  (car (cdr resultado)))
-
-; Obtiene si ya perdio del resultado de una simulacion.
-; Entrada: un resultado de movimiento.
-; Salida: #t si ya perdio y #f si no.
-(define (ObtenerPerdioResultado resultado)
-  (car (cdr (cdr resultado))))
-
 ; Construye el resultado final de un tablero ya actualizado.
 ; Entrada: un tablero.
 ; Salida: una lista con el tablero, si gano y si perdio.
@@ -499,18 +448,9 @@
    (LlegoA2048? tablero)
    (Perdio? tablero)))
 
-; ================================
-; Funciones para usar desde la GUI
-; ================================
-
-; Estas funciones son las que la GUI deberia llamar directamente:
-; CrearTablero
-; CrearTableroInicial
-; MovimientoValido?
-; SimularMovimiento
-; ObtenerTableroResultado
-; ObtenerGanoResultado
-; ObtenerPerdioResultado
+; =======================
+; Aplicacion de jugadas
+; =======================
 
 ; Aplica un movimiento y devuelve el tablero resultante.
 ; Entrada: un tablero y una direccion.
@@ -528,9 +468,74 @@
   (else
     tablero)))
 
+
+; ================================
+; Funciones para usar desde la GUI
+; ================================
+
+; Estas funciones son las que la GUI deberia llamar directamente:
+; CrearTablero
+; CrearTableroInicial
+; MovimientoValido?
+; SimularMovimiento
+; ObtenerTableroResultado
+; ObtenerGanoResultado
+; ObtenerPerdioResultado
+
+; Crea un tablero vacio si las dimensiones son validas.
+; Entrada: la cantidad de filas y la cantidad de columnas.
+; Salida: el tablero vacio o null si las dimensiones no son validas.
+(define (CrearTablero filas columnas)
+  (cond
+    ((DimensionValida? filas)
+     (cond
+       ((DimensionValida? columnas)
+        (CrearTableroAux filas columnas))
+     (else
+       null)))
+  (else
+    null)))
+
+; Crea el tablero inicial del juego con dos fichas de valor 2.
+; Entrada: la cantidad de filas y la cantidad de columnas.
+; Salida: un tablero inicial listo para probar.
+(define (CrearTableroInicial filas columnas)
+  (InsertarFichaAleatoria
+   (InsertarFichaAleatoria
+    (CrearTablero filas columnas)
+    2)
+   2))
+
+; Determina si un movimiento realmente cambia el tablero.
+; Entrada: un tablero y una direccion.
+; Salida: #t si el tablero cambia y #f si queda igual.
+(define (MovimientoValido? tablero direccion)
+  (cond
+    ((TableroIgual? tablero (MoverTablero tablero direccion)) #f)
+  (else
+    #t)))
+
 ; Simula un movimiento, inserta ficha si el tablero cambia y revisa victoria y derrota.
 ; Entrada: un tablero y una direccion.
 ; Salida: una lista con el tablero resultante, si gano y si perdio.
 (define (SimularMovimiento tablero direccion)
   (ConstruirEstadoJuego
    (AplicarMovimientoConFicha tablero direccion)))
+
+; Obtiene el tablero del resultado de una simulacion.
+; Entrada: un resultado de movimiento.
+; Salida: el tablero resultante.
+(define (ObtenerTableroResultado resultado)
+  (car resultado))
+
+; Obtiene si ya gano del resultado de una simulacion.
+; Entrada: un resultado de movimiento.
+; Salida: #t si ya llego a 2048 y #f si no.
+(define (ObtenerGanoResultado resultado)
+  (car (cdr resultado)))
+
+; Obtiene si ya perdio del resultado de una simulacion.
+; Entrada: un resultado de movimiento.
+; Salida: #t si ya perdio y #f si no.
+(define (ObtenerPerdioResultado resultado)
+  (car (cdr (cdr resultado))))
