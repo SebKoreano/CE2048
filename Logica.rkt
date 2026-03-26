@@ -2,9 +2,13 @@
 ;; about the language level of this file in a form that our tools can easily process.
 #reader(lib "htdp-advanced-reader.ss" "lang")((modname Logica) (read-case-sensitive #t) (teachpacks ()) (htdp-settings #(#t constructor repeating-decimal #t #t none #f () #f)))
 
-; Hace: verifica si una dimension del tablero esta entre 4 y 10.
-; Recibe: un numero.
-; Devuelve: #t si la dimension es valida y #f si no lo es.
+; =====================================
+; Funciones auxiliares de construccion
+; =====================================
+
+; Verifica si una dimension del tablero esta entre 4 y 10.
+; Entrada: un numero.
+; Salida: #t si la dimension es valida y #f si no lo es.
 (define (DimensionValida? dimension)
   (cond
     ((< dimension 4) #f)
@@ -12,18 +16,18 @@
   (else
     #t)))
 
-; Hace: crea una fila llena de ceros.
-; Recibe: la cantidad de columnas.
-; Devuelve: una lista con esa cantidad de ceros.
+; Crea una fila llena de ceros.
+; Entrada: la cantidad de columnas.
+; Salida: una lista con esa cantidad de ceros.
 (define (CrearFila columnas)
   (cond
     ((equal? columnas 0) null)
   (else
     (cons 0 (CrearFila (- columnas 1))))))
 
-; Hace: crea el tablero vacio de forma recursiva.
-; Recibe: la cantidad de filas y la cantidad de columnas.
-; Devuelve: una lista de filas llena de ceros.
+; Crea el tablero vacio de forma recursiva.
+; Entrada: la cantidad de filas y la cantidad de columnas.
+; Salida: una lista de filas llena de ceros.
 (define (CrearTableroAux filas columnas)
   (cond
     ((equal? filas 0) null)
@@ -31,9 +35,9 @@
     (cons (CrearFila columnas)
           (CrearTableroAux (- filas 1) columnas)))))
 
-; Hace: crea un tablero vacio si las dimensiones son validas.
-; Recibe: la cantidad de filas y la cantidad de columnas.
-; Devuelve: el tablero vacio o null si las dimensiones no son validas.
+; Crea un tablero vacio si las dimensiones son validas.
+; Entrada: la cantidad de filas y la cantidad de columnas.
+; Salida: el tablero vacio o null si las dimensiones no son validas.
 (define (CrearTablero filas columnas)
   (cond
     ((DimensionValida? filas)
@@ -45,36 +49,36 @@
   (else
     null)))
 
-; Hace: crea una posicion con fila y columna.
-; Recibe: el numero de fila y el numero de columna.
-; Devuelve: una lista con la fila y la columna.
+; Crea una posicion con fila y columna.
+; Entrada: el numero de fila y el numero de columna.
+; Salida: una lista con la fila y la columna.
 (define (CrearPosicion fila columna)
   (cons fila (cons columna null)))
 
-; Hace: obtiene la fila de una posicion.
-; Recibe: una posicion.
-; Devuelve: el numero de fila.
+; Obtiene la fila de una posicion.
+; Entrada: una posicion.
+; Salida: el numero de fila.
 (define (ObtenerFilaPosicion posicion)
   (car posicion))
 
-; Hace: obtiene la columna de una posicion.
-; Recibe: una posicion.
-; Devuelve: el numero de columna.
+; Obtiene la columna de una posicion.
+; Entrada: una posicion.
+; Salida: el numero de columna.
 (define (ObtenerColumnaPosicion posicion)
   (car (cdr posicion)))
 
-; Hace: calcula la cantidad de elementos de una lista.
-; Recibe: una lista.
-; Devuelve: la cantidad de elementos de la lista.
+; Calcula la cantidad de elementos de una lista.
+; Entrada: una lista.
+; Salida: la cantidad de elementos de la lista.
 (define (Largo lista)
   (cond
     ((null? lista) 0)
   (else
     (+ 1 (Largo (cdr lista))))))
 
-; Hace: obtiene el elemento que esta en una posicion dada de una lista.
-; Recibe: una lista y un indice.
-; Devuelve: el elemento en ese indice o null si no existe.
+; Obtiene el elemento que esta en una posicion dada de una lista.
+; Entrada: una lista y un indice.
+; Salida: el elemento en ese indice o null si no existe.
 (define (ObtenerElemento lista indice)
   (cond
     ((null? lista) null)
@@ -82,9 +86,9 @@
   (else
     (ObtenerElemento (cdr lista) (- indice 1)))))
 
-; Hace: busca las posiciones vacias de una fila.
-; Recibe: una fila, el numero de fila y el numero de columna actual.
-; Devuelve: una lista de posiciones vacias.
+; Busca las posiciones vacias de una fila.
+; Entrada: una fila, el numero de fila y el numero de columna actual.
+; Salida: una lista de posiciones vacias.
 (define (BuscarVaciosFila fila numeroFila numeroColumna)
   (cond
     ((null? fila) null)
@@ -94,9 +98,9 @@
   (else
     (BuscarVaciosFila (cdr fila) numeroFila (+ numeroColumna 1)))))
 
-; Hace: busca las posiciones vacias de todo el tablero.
-; Recibe: el tablero y el numero de fila actual.
-; Devuelve: una lista con todas las posiciones vacias del tablero.
+; Busca las posiciones vacias de todo el tablero.
+; Entrada: el tablero y el numero de fila actual.
+; Salida: una lista con todas las posiciones vacias del tablero.
 (define (BuscarVaciosTableroAux tablero numeroFila)
   (cond
     ((null? tablero) null)
@@ -105,15 +109,15 @@
      (BuscarVaciosFila (car tablero) numeroFila 0)
      (BuscarVaciosTableroAux (cdr tablero) (+ numeroFila 1))))))
 
-; Hace: busca todas las posiciones vacias del tablero.
-; Recibe: un tablero.
-; Devuelve: una lista con todas las posiciones vacias.
+; Busca todas las posiciones vacias del tablero.
+; Entrada: un tablero.
+; Salida: una lista con todas las posiciones vacias.
 (define (BuscarVaciosTablero tablero)
   (BuscarVaciosTableroAux tablero 0))
 
-; Hace: reemplaza un elemento en una lista en una posicion dada.
-; Recibe: una lista, un indice y un valor.
-; Devuelve: una nueva lista con el valor reemplazado.
+; Reemplaza un elemento en una lista en una posicion dada.
+; Entrada: una lista, un indice y un valor.
+; Salida: una nueva lista con el valor reemplazado.
 (define (ReemplazarEnLista lista indice valor)
   (cond
     ((null? lista) null)
@@ -123,9 +127,9 @@
     (cons (car lista)
           (ReemplazarEnLista (cdr lista) (- indice 1) valor)))))
 
-; Hace: reemplaza un valor dentro del tablero.
-; Recibe: un tablero, una fila, una columna y un valor.
-; Devuelve: un nuevo tablero con el valor colocado en esa posicion.
+; Reemplaza un valor dentro del tablero.
+; Entrada: un tablero, una fila, una columna y un valor.
+; Salida: un nuevo tablero con el valor colocado en esa posicion.
 (define (ReemplazarEnTablero tablero fila columna valor)
   (cond
     ((null? tablero) null)
@@ -136,24 +140,24 @@
     (cons (car tablero)
           (ReemplazarEnTablero (cdr tablero) (- fila 1) columna valor)))))
 
-; Hace: inserta un valor en una posicion dada del tablero.
-; Recibe: un tablero, una posicion y un valor.
-; Devuelve: un nuevo tablero con el valor insertado.
+; Inserta un valor en una posicion dada del tablero.
+; Entrada: un tablero, una posicion y un valor.
+; Salida: un nuevo tablero con el valor insertado.
 (define (InsertarValorEnPosicion tablero posicion valor)
   (ReemplazarEnTablero tablero
                        (ObtenerFilaPosicion posicion)
                        (ObtenerColumnaPosicion posicion)
                        valor))
 
-; Hace: escoge una posicion vacia al azar.
-; Recibe: una lista de posiciones vacias.
-; Devuelve: una posicion aleatoria.
+; Escoge una posicion vacia al azar.
+; Entrada: una lista de posiciones vacias.
+; Salida: una posicion aleatoria.
 (define (EscogerPosicionAleatoria vacios)
   (ObtenerElemento vacios (random (Largo vacios))))
 
-; Hace: inserta una ficha en una posicion vacia aleatoria.
-; Recibe: un tablero, una lista de vacios y un valor.
-; Devuelve: un nuevo tablero con la ficha insertada.
+; Inserta una ficha en una posicion vacia aleatoria.
+; Entrada: un tablero, una lista de vacios y un valor.
+; Salida: un nuevo tablero con la ficha insertada.
 (define (InsertarFichaAleatoriaAux tablero vacios valor)
   (cond
     ((null? vacios) tablero)
@@ -162,38 +166,42 @@
                              (EscogerPosicionAleatoria vacios)
                              valor))))
 
-; Hace: inserta una ficha con un valor dado en una casilla vacia aleatoria.
-; Recibe: un tablero y un valor.
-; Devuelve: un nuevo tablero con la ficha insertada.
+; Inserta una ficha con un valor dado en una casilla vacia aleatoria.
+; Entrada: un tablero y un valor.
+; Salida: un nuevo tablero con la ficha insertada.
 (define (InsertarFichaAleatoria tablero valor)
   (InsertarFichaAleatoriaAux tablero
                              (BuscarVaciosTablero tablero)
                              valor))
 
-; Hace: genera el valor de una ficha nueva.
-; Recibe: nada.
-; Devuelve: 2 o 4.
+; Genera el valor de una ficha nueva.
+; Entrada: nada.
+; Salida: 2 o 4.
 (define (GenerarValorFicha)
   (cond
     ((equal? (random 10) 0) 4)
   (else
     2)))
 
-; Hace: inserta una ficha nueva aleatoria en el tablero.
-; Recibe: un tablero.
-; Devuelve: un nuevo tablero con una ficha 2 o 4 en una posicion vacia.
+; Inserta una ficha nueva aleatoria en el tablero.
+; Entrada: un tablero.
+; Salida: un nuevo tablero con una ficha 2 o 4 en una posicion vacia.
 (define (InsertarFichaNueva tablero)
   (InsertarFichaAleatoria tablero (GenerarValorFicha)))
 
-; Hace: crea el tablero inicial del juego con dos fichas de valor 2.
-; Recibe: la cantidad de filas y la cantidad de columnas.
-; Devuelve: un tablero inicial listo para probar.
+; Crea el tablero inicial del juego con dos fichas de valor 2.
+; Entrada: la cantidad de filas y la cantidad de columnas.
+; Salida: un tablero inicial listo para probar.
 (define (CrearTableroInicial filas columnas)
   (InsertarFichaAleatoria
    (InsertarFichaAleatoria
     (CrearTablero filas columnas)
     2)
    2))
+
+; =========================
+; Logica de movimientos
+; =========================
 
 ; Quita todos los ceros de una fila.
 ; Entrada: una fila.
@@ -331,6 +339,10 @@
   (else
     tablero)))
 
+; ==========================
+; Validaciones del juego
+; ==========================
+
 ; Compara dos filas posicion por posicion.
 ; Entrada: dos filas.
 ; Salida: #t si ambas filas son iguales y #f si no lo son.
@@ -371,22 +383,6 @@
     ((TableroIgual? tablero (MoverTablero tablero direccion)) #f)
   (else
     #t)))
-
-; Aplica un movimiento y devuelve el tablero resultante.
-; Entrada: un tablero y una direccion.
-; Salida: el tablero despues del movimiento.
-(define (AplicarMovimiento tablero direccion)
-  (MoverTablero tablero direccion))
-
-; Aplica un movimiento y solo inserta una ficha nueva si el tablero cambio.
-; Entrada: un tablero y una direccion.
-; Salida: un nuevo tablero con el movimiento aplicado y, si hubo cambio, una ficha nueva.
-(define (AplicarMovimientoConFicha tablero direccion)
-  (cond
-    ((MovimientoValido? tablero direccion)
-     (InsertarFichaNueva (AplicarMovimiento tablero direccion)))
-  (else
-    tablero)))
 
 ; Revisa si una fila contiene un valor dado.
 ; Entrada: una fila y un valor.
@@ -464,6 +460,10 @@
   (else
     #t)))
 
+; =============================
+; Resultado de la simulacion
+; =============================
+
 ; Crea el resultado de una simulacion de movimiento.
 ; Entrada: un tablero, un valor de ganado y un valor de perdido.
 ; Salida: una lista con el tablero, si gano y si perdio.
@@ -499,10 +499,38 @@
    (LlegoA2048? tablero)
    (Perdio? tablero)))
 
+; ================================
+; Funciones para usar desde la GUI
+; ================================
+
+; Estas funciones son las que la GUI deberia llamar directamente:
+; CrearTablero
+; CrearTableroInicial
+; MovimientoValido?
+; SimularMovimiento
+; ObtenerTableroResultado
+; ObtenerGanoResultado
+; ObtenerPerdioResultado
+
+; Aplica un movimiento y devuelve el tablero resultante.
+; Entrada: un tablero y una direccion.
+; Salida: el tablero despues del movimiento.
+(define (AplicarMovimiento tablero direccion)
+  (MoverTablero tablero direccion))
+
+; Aplica un movimiento y solo inserta una ficha nueva si el tablero cambio.
+; Entrada: un tablero y una direccion.
+; Salida: un nuevo tablero con el movimiento aplicado y, si hubo cambio, una ficha nueva.
+(define (AplicarMovimientoConFicha tablero direccion)
+  (cond
+    ((MovimientoValido? tablero direccion)
+     (InsertarFichaNueva (AplicarMovimiento tablero direccion)))
+  (else
+    tablero)))
+
 ; Simula un movimiento, inserta ficha si el tablero cambia y revisa victoria y derrota.
 ; Entrada: un tablero y una direccion.
 ; Salida: una lista con el tablero resultante, si gano y si perdio.
 (define (SimularMovimiento tablero direccion)
   (ConstruirEstadoJuego
    (AplicarMovimientoConFicha tablero direccion)))
-
