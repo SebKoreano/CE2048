@@ -168,7 +168,7 @@
                                      i j
                                      start))))))
 
-(define-struct world (state score winning-total rows cols frames start-time) #:transparent)
+(define-struct world (state score winning-total rows cols frames start-time exit?) #:transparent)
 
 ; Funciones para manejar la lógica del juego, como verificar si el juego ha terminado, calcular el puntaje, manejar las entradas del usuario
 (define (out-of-time? start-time)
@@ -176,7 +176,7 @@
 
 ; La función finished? verifica si el juego ha terminado, lo que ocurre cuando no hay movimientos posibles
 (define (game-over? w)
-  (match-define (world state score wt rows cols frames start-time) w)
+  (match-define (world state score wt rows cols frames start-time exit?) w)
   (and (null? frames)
        (or (finished? state cols)
            (and wt (equal? (apply + (flatten state)) wt))
@@ -194,8 +194,11 @@
 ; La función change maneja la entrada del usuario, aplicando el movimiento correspondiente y actualizando el estado del juego
 (define (change w a-key)
   (match-let ([(list op moves-op) (key->ops a-key)]
-              [(world st score wt rows cols frames start-time) w])
-    (cond [(out-of-time? start-time) w]
+      [(world st score wt rows cols frames start-time exit?) w])
+    (cond [exit? w]
+      [(game-over? w)
+       (make-world st score wt rows cols frames start-time #t)]
+      [(out-of-time? start-time) w]
           [op
            (let* ([grid (chop st cols)]
                   [slide-state (flatten (op grid))])
@@ -218,7 +221,8 @@
                        (append frames
                            (animate-moving-tiles st rows cols moves-op)
                            (animate-appearing-tile slide-state rows cols value index))
-                       start-time))))]
+                         start-time
+                          exit?))))]
           [else w])))
 
 ; Funciones para manejar la animación
@@ -254,7 +258,7 @@
 
 ; La función show-world dibuja el estado actual del juego, incluyendo el tablero, el puntaje y el tiempo
 (define (show-world w)
-  (match-define (world state score wt rows cols frames start-time) w)
+  (match-define (world state score wt rows cols frames start-time exit?) w)
   (let* ([board (if (null? frames)
         (cond [(finished? state cols) (banner "Fin del juego :(" state rows cols)]
           [(out-of-time? start-time) (banner "Out of Time" state rows cols 'red)]
@@ -281,10 +285,10 @@
 
 ; La función advance-frame actualiza el estado del juego para la siguiente imagen en la animación, eliminando el primer frame de la lista de frames
 (define (advance-frame w)
-  (match-define (world state score wt rows cols frames start-time) w)
+  (match-define (world state score wt rows cols frames start-time exit?) w)
   (if (null? frames)
       w
-      (make-world state score wt rows cols (rest frames) start-time)))
+      (make-world state score wt rows cols (rest frames) start-time exit?)))
 
 ; La función parse-size analiza la entrada del usuario para determinar el tamaño del tablero, aceptando formatos como "4x4" o "8"
 (define (parse-size input)
@@ -349,11 +353,11 @@
                             (initial-state-mxn rows cols)))
   (define initial-winning-total (and demo? *tile-that-wins*))
   (big-bang (make-world initial-state
-                        0 initial-winning-total rows cols null (current-seconds))
+                        0 initial-winning-total rows cols null (current-seconds) #f)
             (to-draw show-world)
             (on-key change)
             (on-tick advance-frame 0.01)
-            (stop-when game-over? show-world)
+            (stop-when world-exit? show-world)
             (name "2048 - Racket")))
 
 (start)
